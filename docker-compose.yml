@@ -1,0 +1,17 @@
+services:
+  frontend:
+    build:
+      context: ./frontend/frontend-granja
+    ports:
+      - "3000:5173"
+    depends_on:
+      - backend
+    volumes:
+      - ./frontend/frontend-granja:/app
+      - /app/node_modules
+
+  backend:
+    build:
+      context: ./backend/GanjaSA-Backend
+    ports:
+      - "8090:8090"
