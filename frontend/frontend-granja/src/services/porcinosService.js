@@ -1,11 +1,10 @@
-import axios from "axios";
-
-const API_URL = "http://localhost:8090/graphql";
+import { gql } from "@apollo/client";
+import client from "../services/apolloClient";
 
 export const createPorcino = async (porcino) => {
   try {
-    const response = await axios.post(API_URL, {
-      query: `
+    const { data } = await client.mutate({
+      mutation: gql`
         mutation ($input: PorcinoInput!) {
           createPorcino(input: $input) {
             id
@@ -37,11 +36,7 @@ export const createPorcino = async (porcino) => {
       },
     });
 
-    if (response.data.errors) {
-      throw new Error(response.data.errors[0].message);
-    }
-
-    return response.data.data.createPorcino;
+    return data.createPorcino;
   } catch (error) {
     console.error("createPorcino error:", error);
     throw error;
@@ -50,9 +45,9 @@ export const createPorcino = async (porcino) => {
 
 export const getPorcinos = async () => {
   try {
-    const response = await axios.post(API_URL, {
-      query: `
-        {
+    const { data } = await client.query({
+      query: gql`
+        query {
           allPorcinos {
             id
             identificacion
@@ -71,9 +66,10 @@ export const getPorcinos = async () => {
           }
         }
       `,
+      fetchPolicy: "no-cache", 
     });
 
-    return response.data.data.allPorcinos;
+    return data.allPorcinos;
   } catch (error) {
     console.error("getPorcinos error:", error);
     throw error;
@@ -82,15 +78,16 @@ export const getPorcinos = async () => {
 
 export const deletePorcino = async (id) => {
   try {
-    const response = await axios.post(API_URL, {
-      query: `
-        mutation {
-          deletePorcino(id: ${id})
+    const { data } = await client.mutate({
+      mutation: gql`
+        mutation ($id: ID!) {
+          deletePorcino(id: $id)
         }
       `,
+      variables: { id },
     });
 
-    return response.data.data.deletePorcino;
+    return data.deletePorcino;
   } catch (error) {
     console.error("deletePorcino error:", error);
     throw error;
@@ -99,20 +96,10 @@ export const deletePorcino = async (id) => {
 
 export const updatePorcino = async (id, porcino) => {
   try {
-    const response = await axios.post(API_URL, {
-      query: `
-        mutation {
-          updatePorcino(
-            id: ${id},
-            input: {
-              identificacion: "${porcino.identificacion}"
-              raza: "${porcino.raza}"
-              edad: ${porcino.edad}
-              peso: ${porcino.peso}
-              clienteCedula: "${porcino.clienteCedula}"
-              alimentacionId: ${porcino.alimentacionId ? parseInt(porcino.alimentacionId) : null}
-            }
-          ) {
+    const { data } = await client.mutate({
+      mutation: gql`
+        mutation ($id: ID!, $input: PorcinoInput!) {
+          updatePorcino(id: $id, input: $input) {
             id
             identificacion
             raza
@@ -130,9 +117,22 @@ export const updatePorcino = async (id, porcino) => {
           }
         }
       `,
+      variables: {
+        id: parseInt(id), 
+        input: {
+          identificacion: porcino.identificacion,
+          raza: porcino.raza,
+          edad: parseInt(porcino.edad),
+          peso: parseFloat(porcino.peso),
+          clienteCedula: String(porcino.clienteCedula), 
+          alimentacionId: porcino.alimentacionId
+            ? parseInt(porcino.alimentacionId)
+            : null, 
+        },
+      },
     });
 
-    return response.data.data.updatePorcino;
+    return data.updatePorcino;
   } catch (error) {
     console.error("updatePorcino error:", error);
     throw error;

@@ -1,30 +1,21 @@
-const API_URL_GRAPHQL = "http://localhost:8090/graphql";
+import { gql } from "@apollo/client";
+import client from "../services/apolloClient";
 
 export const getAlimentaciones = async () => {
   try {
-    const response = await fetch(API_URL_GRAPHQL, {
-      method: "POST",
-      headers: { "Content-Type": "application/json" },
-      body: JSON.stringify({
-        query: `
-          {
-            allAlimentaciones {
-              id
-              descripcion
-              dosis
-            }
+    const { data } = await client.query({
+      query: gql`
+        query {
+          allAlimentaciones {
+            id
+            descripcion
+            dosis
           }
-        `,
-      }),
+        }
+      `,
+      fetchPolicy: "no-cache", 
     });
-
-    const result = await response.json();
-
-    if (result.errors) {
-      throw new Error(result.errors[0].message);
-    }
-
-    return result.data.allAlimentaciones;
+    return data.allAlimentaciones;
   } catch (error) {
     console.error("getAlimentaciones error:", error);
     throw error;
@@ -33,33 +24,19 @@ export const getAlimentaciones = async () => {
 
 export const createAlimentacion = async (alimentacion) => {
   try {
-    const response = await fetch(API_URL_GRAPHQL, {
-      method: "POST",
-      headers: { "Content-Type": "application/json" },
-      body: JSON.stringify({
-        query: `
-          mutation {
-            createAlimentacion(
-              input: {
-                descripcion: "${alimentacion.descripcion}",
-                dosis: "${alimentacion.dosis}"
-              }
-            ) {
-              id
-              descripcion
-              dosis
-            }
+    const { data } = await client.mutate({
+      mutation: gql`
+        mutation ($input: AlimentacionInput!) {
+          createAlimentacion(input: $input) {
+            id
+            descripcion
+            dosis
           }
-        `,
-      }),
+        }
+      `,
+      variables: { input: alimentacion },
     });
-
-    const result = await response.json();
-    if (result.errors) {
-      throw new Error(result.errors[0].message);
-    }
-
-    return result.data.createAlimentacion;
+    return data.createAlimentacion;
   } catch (error) {
     console.error("createAlimentacion error:", error);
     throw error;
@@ -68,34 +45,26 @@ export const createAlimentacion = async (alimentacion) => {
 
 export const updateAlimentacion = async (id, alimentacion) => {
   try {
-    const response = await fetch(API_URL_GRAPHQL, {
-      method: "POST",
-      headers: { "Content-Type": "application/json" },
-      body: JSON.stringify({
-        query: `
-          mutation {
-            updateAlimentacion(
-              id: ${id},
-              input: {
-                descripcion: "${alimentacion.descripcion}",
-                dosis: "${alimentacion.dosis}"
-              }
-            ) {
-              id
-              descripcion
-              dosis
-            }
+    const { data } = await client.mutate({
+      mutation: gql`
+        mutation ($id: ID!, $input: AlimentacionInput!) {
+          updateAlimentacion(id: $id, input: $input) {
+            id
+            descripcion
+            dosis
           }
-        `,
-      }),
+        }
+      `,
+      variables: {
+        id: String(id),
+        input: {
+          descripcion: alimentacion.descripcion,
+          dosis: alimentacion.dosis,
+        },
+      },
     });
 
-    const result = await response.json();
-    if (result.errors) {
-      throw new Error(result.errors[0].message);
-    }
-
-    return result.data.updateAlimentacion;
+    return data.updateAlimentacion;
   } catch (error) {
     console.error("updateAlimentacion error:", error);
     throw error;
@@ -104,24 +73,15 @@ export const updateAlimentacion = async (id, alimentacion) => {
 
 export const deleteAlimentacion = async (id) => {
   try {
-    const response = await fetch(API_URL_GRAPHQL, {
-      method: "POST",
-      headers: { "Content-Type": "application/json" },
-      body: JSON.stringify({
-        query: `
-          mutation {
-            deleteAlimentacion(id: ${id})
-          }
-        `,
-      }),
+    const { data } = await client.mutate({
+      mutation: gql`
+        mutation ($id: ID!) {
+          deleteAlimentacion(id: $id)
+        }
+      `,
+      variables: { id },
     });
-
-    const result = await response.json();
-    if (result.errors) {
-      throw new Error(result.errors[0].message);
-    }
-
-    return result.data.deleteAlimentacion; 
+    return data.deleteAlimentacion;
   } catch (error) {
     console.error("deleteAlimentacion error:", error);
     throw error;
