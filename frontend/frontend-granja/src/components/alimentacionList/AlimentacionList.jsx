@@ -148,7 +148,6 @@ const AlimentacionList = () => {
                 </Table>
             </div>
 
-            {/* Modal de edición */}
             <Modal show={showModal} onHide={() => setShowModal(false)} centered>
                 <Modal.Header closeButton>
                     <Modal.Title>Editar Alimentación</Modal.Title>

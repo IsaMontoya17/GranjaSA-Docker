@@ -1,0 +1,76 @@
+type Query {
+    hello: String
+    allClientes: [Cliente]
+    clienteById(cedula: ID!): Cliente
+
+    allPorcinos: [Porcino]
+    porcinoById(id: ID!): Porcino
+
+    allAlimentaciones: [Alimentacion]
+    alimentacionById(id: ID!): Alimentacion
+}
+
+type Cliente {
+    cedula: ID!
+    nombres: String
+    apellidos: String
+    direccion: String
+    telefono: String
+    porcinos: [Porcino]
+}
+
+type Mutation {
+    createCliente(input: ClienteInput!): Cliente
+    updateCliente(cedula: ID!, input: ClienteInput!): Cliente
+    deleteCliente(cedula: ID!): Boolean
+
+    createAlimentacion(input: AlimentacionInput!): Alimentacion
+    updateAlimentacion(id: ID!, input: AlimentacionInput!): Alimentacion
+    deleteAlimentacion(id: ID!): Boolean
+
+    createPorcino(input: PorcinoInput!): Porcino
+    updatePorcino(id: ID!, input: PorcinoInput!): Porcino
+    deletePorcino(id: ID!): Boolean
+}
+
+input ClienteInput {
+  cedula: ID
+  nombres: String
+  apellidos: String
+  direccion: String
+  telefono: String
+}
+
+type Porcino {
+    id: ID!
+    identificacion: String
+    raza: String
+    edad: Int
+    peso: Float
+    cliente: Cliente
+    alimentacion: Alimentacion
+}
+
+
+input PorcinoInput {
+  identificacion: String
+  raza: String
+  edad: Int
+  peso: Float
+  clienteCedula: ID
+  alimentacionId: ID
+}
+
+
+type Alimentacion {
+    id: ID!
+    descripcion: String
+    dosis: String
+}
+
+input AlimentacionInput {
+  descripcion: String
+  dosis: String
+}
+
+

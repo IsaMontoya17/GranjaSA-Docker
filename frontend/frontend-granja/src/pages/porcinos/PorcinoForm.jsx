@@ -1,6 +1,9 @@
 import { useState, useEffect } from "react";
 import { Form, Button, Card, Alert, Spinner } from "react-bootstrap";
 import styles from "./PorcinoForm.module.css";
+import { createPorcino } from "../../services/porcinosService";
+import { getClientes } from "../../services/clientesService";
+import { getAlimentaciones } from "../../services/alimentacionService";
 
 const PorcinoForm = () => {
   const [identificacion, setIdentificacion] = useState("");
@@ -15,28 +18,16 @@ const PorcinoForm = () => {
   const [mensaje, setMensaje] = useState(null);
   const [error, setError] = useState(null);
 
-  const API_PORCINOS = "http://localhost:8090/api/porcinos";
-  const API_ALIMENTACIONES = "http://localhost:8090/api/alimentaciones";
-  const API_CLIENTES = "http://localhost:8090/api/clientes";
-
-
   const razasEnum = ["YORK", "HAMP", "DUROC"];
 
-  
+  // Cargar clientes y alimentaciones desde GraphQL
   useEffect(() => {
     const fetchData = async () => {
       try {
-        const [alimentacionesRes, clientesRes] = await Promise.all([
-          fetch(API_ALIMENTACIONES),
-          fetch(API_CLIENTES),
+        const [alimentacionesData, clientesData] = await Promise.all([
+          getAlimentaciones(),
+          getClientes(),
         ]);
-
-        if (!alimentacionesRes.ok || !clientesRes.ok) {
-          throw new Error("Error cargando datos de referencia");
-        }
-
-        const alimentacionesData = await alimentacionesRes.json();
-        const clientesData = await clientesRes.json();
 
         setAlimentaciones(alimentacionesData);
         setClientes(clientesData);
@@ -50,6 +41,7 @@ const PorcinoForm = () => {
     fetchData();
   }, []);
 
+  // Enviar formulario
   const handleSubmit = async (e) => {
     e.preventDefault();
     setMensaje(null);
@@ -73,23 +65,14 @@ const PorcinoForm = () => {
     }
 
     try {
-      const response = await fetch(API_PORCINOS, {
-        method: "POST",
-        headers: { "Content-Type": "application/json" },
-        body: JSON.stringify({
-          identificacion: identificacion.trim(),
-          raza: raza,
-          edad: edad,
-          peso: peso,
-          alimentacion: { id: alimentacionId },
-          cliente: { cedula: clienteId },
-        }),
+      await createPorcino({
+        identificacion: identificacion.trim(),
+        raza,
+        edad: parseInt(edad, 10),
+        peso: parseFloat(peso),
+        clienteCedula: clienteId,
+        alimentacionId: alimentacionId ? parseInt(alimentacionId, 10) : null,
       });
-
-      if (!response.ok) {
-        const text = await response.text();
-        throw new Error(text || "Error al registrar el porcino");
-      }
 
       setMensaje("✅ Porcino registrado correctamente");
       setIdentificacion("");

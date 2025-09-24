@@ -21,7 +21,6 @@ const Sidebar = () => {
         <aside className={`${styles.sidebar} d-none d-md-block`}>
             <h4 className="px-3 py-2 border-bottom">Menú</h4>
             <Nav className="flex-column">
-                {/* Porcinos */}
                 <div
                     className={styles.navItem}
                     onClick={() => setOpenPorcinos(!openPorcinos)}
@@ -47,7 +46,6 @@ const Sidebar = () => {
                     </div>
                 </Collapse>
 
-                {/* Clientes */}
                 <div
                     className={styles.navItem}
                     onClick={() => setOpenClientes(!openClientes)}
@@ -73,7 +71,6 @@ const Sidebar = () => {
                     </div>
                 </Collapse>
 
-                {/* Alimentación */}
                 <div
                     className={styles.navItem}
                     onClick={() => setOpenAlimentacion(!openAlimentacion)}
@@ -99,7 +96,6 @@ const Sidebar = () => {
                     </div>
                 </Collapse>
 
-                {/* Reportes */}
                 <Nav.Link as={NavLink} to="/reportes">
                     <FaChartBar className="me-2" />
                     Reportes

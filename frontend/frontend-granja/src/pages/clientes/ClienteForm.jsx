@@ -1,6 +1,7 @@
 import { useState } from "react";
 import { Form, Button, Card, Alert } from "react-bootstrap";
 import styles from "./ClienteForm.module.css";
+import { createCliente } from "../../services/clientesService"; // importamos GraphQL service
 
 const ClienteForm = () => {
   const [cedula, setCedula] = useState("");
@@ -10,38 +11,26 @@ const ClienteForm = () => {
   const [telefono, setTelefono] = useState("");
   const [mensaje, setMensaje] = useState(null);
   const [error, setError] = useState(null);
-  const API = "http://localhost:8090/api/clientes";
 
   const handleSubmit = async (e) => {
     e.preventDefault();
     setMensaje(null);
     setError(null);
 
-    
     if (!cedula.trim() || !nombres.trim() || !apellidos.trim()) {
       setError("❌ La cédula, nombres y apellidos son obligatorios");
       return;
     }
 
     try {
-      const response = await fetch(API, {
-        method: "POST",
-        headers: { "Content-Type": "application/json" },
-        body: JSON.stringify({
-          cedula: cedula.trim(),
-          nombres: nombres.trim(),
-          apellidos: apellidos.trim(),
-          direccion: direccion.trim(),
-          telefono: telefono.trim(),
-        }),
+      await createCliente({
+        cedula: cedula.trim(),
+        nombres: nombres.trim(),
+        apellidos: apellidos.trim(),
+        direccion: direccion.trim(),
+        telefono: telefono.trim(),
       });
 
-      if (!response.ok) {
-        const text = await response.text();
-        throw new Error(text || "Error al registrar el cliente");
-      }
-
-      await response.json();
       setMensaje("✅ Cliente registrado correctamente");
       setCedula("");
       setNombres("");

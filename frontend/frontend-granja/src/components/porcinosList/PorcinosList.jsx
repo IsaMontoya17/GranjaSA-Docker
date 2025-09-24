@@ -8,7 +8,7 @@ import Swal from "sweetalert2";
 
 const PorcinosList = () => {
     const [porcinos, setPorcinos] = useState([]);
-    const [alimentaciones, setAlimentaciones] = useState([]); // 🔹 Lista de alimentaciones
+    const [alimentaciones, setAlimentaciones] = useState([]);
     const [loading, setLoading] = useState(true);
     const [showModal, setShowModal] = useState(false);
     const [selectedPorcino, setSelectedPorcino] = useState(null);
@@ -33,16 +33,23 @@ const PorcinosList = () => {
         fetchData();
     }, []);
 
-    // 👉 Abrir modal con datos del porcino
     const handleEdit = (porcino) => {
-        setSelectedPorcino({ ...porcino });
+        setSelectedPorcino({ 
+            ...porcino, 
+            alimentacionId: porcino.alimentacion?.id || null 
+        });
         setShowModal(true);
     };
 
-    // 👉 Guardar cambios
     const handleSave = async () => {
         try {
-            await updatePorcino(selectedPorcino.id, selectedPorcino);
+            const porcinoActualizado = {
+                ...selectedPorcino,
+                edad: parseInt(selectedPorcino.edad),
+                peso: parseFloat(selectedPorcino.peso),
+            };
+
+            await updatePorcino(selectedPorcino.id, porcinoActualizado);
             Swal.fire("✅ Éxito", "Porcino actualizado correctamente", "success");
             setShowModal(false);
             fetchData();
@@ -156,7 +163,6 @@ const PorcinosList = () => {
                 </Table>
             </div>
 
-            {/* 🔹 Modal de edición */}
             <Modal show={showModal} onHide={() => setShowModal(false)}>
                 <Modal.Header closeButton>
                     <Modal.Title>Editar Porcino</Modal.Title>
@@ -213,18 +219,18 @@ const PorcinosList = () => {
                                 />
                             </Form.Group>
 
-                            {/* 🔹 Alimentación desplegable */}
                             <Form.Group className="mb-3">
                                 <Form.Label>Alimentación</Form.Label>
                                 <Form.Select
-                                    value={selectedPorcino.alimentacion?.id || ""}
+                                    value={selectedPorcino.alimentacionId || ""}
                                     onChange={(e) => {
                                         const alimentacionSeleccionada = alimentaciones.find(
                                             (a) => a.id === parseInt(e.target.value)
                                         );
                                         setSelectedPorcino({
                                             ...selectedPorcino,
-                                            alimentacion: alimentacionSeleccionada,
+                                            alimentacionId: alimentacionSeleccionada?.id ?? null,
+                                            alimentacion: alimentacionSeleccionada, 
                                         });
                                     }}
                                 >
